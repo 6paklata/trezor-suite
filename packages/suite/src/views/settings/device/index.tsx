@@ -6,7 +6,7 @@ import { H2, Switch } from '@trezor/components-v2';
 import { Translation } from '@suite-components/Translation';
 import messages from '@suite/support/messages';
 import { SuiteLayout, SettingsMenu } from '@suite-components';
-import { getFwVersion } from '@suite-utils/device';
+// import { getFwVersion } from '@suite-utils/device';
 
 import { Props } from './Container';
 import { SEED_MANUAL_URL } from '@onboarding-constants/urls';
@@ -33,6 +33,7 @@ const Settings = ({
     wipeDevice,
     backupDevice,
     openBackgroundGalleryModal,
+    goto,
 }: Props) => {
     const uiLocked = locks.includes(SUITE.LOCK_TYPE.DEVICE) || locks.includes(SUITE.LOCK_TYPE.UI);
     const [label, setLabel] = useState('');
@@ -108,7 +109,8 @@ const Settings = ({
                             title={<Translation>{messages.TR_FIRMWARE_VERSION}</Translation>}
                             description={
                                 <Translation
-                                    values={{ version: getFwVersion(device) }}
+                                    values={{ version: '1.2.3' }}
+                                    // values={{ version: getFwVersion(device) }}
                                     {...messages.TR_YOUR_CURRENT_FIRMWARE}
                                 />
                             }
@@ -117,10 +119,16 @@ const Settings = ({
                         <ActionColumn>
                             <ActionButton
                                 variant="secondary"
-                                onClick={() => console.log('boo')}
-                                isDisabled={uiLocked}
+                                onClick={() => goto('suite-device-firmware')}
+                                isDisabled={
+                                    uiLocked ||
+                                    (device && !['required', 'outdated'].includes(device.firmware))
+                                }
                             >
-                                Check for update
+                                {device &&
+                                    ['required', 'outdated'].includes(device.firmware) &&
+                                    'Update available'}
+                                {device && device.firmware === 'valid' && 'Up to date'}
                             </ActionButton>
                         </ActionColumn>
                     </Row>
