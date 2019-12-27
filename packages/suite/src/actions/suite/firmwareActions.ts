@@ -27,11 +27,14 @@ export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetStat
         return;
     }
 
-    // todo: limit only to real devices, exclude virtual.
-    if (devices.length > 1) {
+    // we can not know if reconnected device was the device user has worked before.
+    // so the only way around this is to disallow multiple devices during fw update
+    // otherwise we could run into weird edgecases. Actually we still can (if user connects
+    // different device) but this is users problem now.
+    if (devices.filter(d => !d.instance).length > 1) {
         dispatch({
             type: FIRMWARE.SET_ERROR,
-            payload: 'you should have only one device connected during firmware update',
+            payload: 'you must have only one device connected during firmware update',
         });
     }
 
