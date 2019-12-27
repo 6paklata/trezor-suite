@@ -5,7 +5,7 @@ import { lockUI } from '@suite-actions/suiteActions';
 
 //  TODO: should be reworked to deviceManagementActions
 
-import { SUITE, FIRMWARE } from '@suite-actions/constants';
+import { FIRMWARE } from '@suite-actions/constants';
 import { AnyStatus } from '@suite-reducers/firmwareReducer';
 import { Dispatch, GetState, Action } from '@suite-types';
 
@@ -16,12 +16,26 @@ export type FirmwareUpdateActionTypes =
     | { type: typeof FIRMWARE.SET_ERROR; payload: string | undefined }
     | { type: typeof FIRMWARE.CONFIRM_SEED };
 
+export const resetReducer = () => (dispatch: Dispatch) => {
+    dispatch({
+        type: FIRMWARE.RESET_REDUCER,
+    });
+};
+
+export const setStatus = (payload: AnyStatus): Action => ({
+    type: FIRMWARE.SET_UPDATE_STATUS,
+    payload,
+});
+
+export const confirmSeed = (): Action => ({
+    type: FIRMWARE.CONFIRM_SEED,
+});
+
 export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetState) => {
-    const { device, locks } = getState().suite;
+    const { device } = getState().suite;
     const { devices } = getState();
 
-    dispatch({ type: FIRMWARE.RESET_REDUCER });
-
+    dispatch(resetReducer());
     if (!device || !device.connected || !device.features) {
         dispatch({ type: FIRMWARE.SET_ERROR, payload: 'no device connected' });
         return;
@@ -36,6 +50,7 @@ export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetStat
             type: FIRMWARE.SET_ERROR,
             payload: 'you must have only one device connected during firmware update',
         });
+        return;
     }
 
     if (device.mode !== 'bootloader') {
@@ -48,11 +63,9 @@ export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetStat
 
     const model = device.features.major_version;
 
-    if (!locks.includes(SUITE.LOCK_TYPE.UI)) {
-        dispatch(lockUI(true));
-    }
+    dispatch(lockUI(true));
 
-    dispatch({ type: FIRMWARE.SET_UPDATE_STATUS, payload: 'downloading' });
+    dispatch(setStatus('downloading'));
 
     const rollout = Rollout({
         releasesListsPaths: {
@@ -79,7 +92,7 @@ export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetStat
         device,
     };
 
-    dispatch({ type: FIRMWARE.SET_UPDATE_STATUS, payload: 'started' });
+    dispatch(setStatus('started'));
 
     const updateResponse = await TrezorConnect.firmwareUpdate(payload);
 
@@ -89,30 +102,5 @@ export const firmwareUpdate = () => async (dispatch: Dispatch, getState: GetStat
         return dispatch(lockUI(false));
     }
 
-    dispatch({
-        type: FIRMWARE.SET_UPDATE_STATUS,
-        payload: model === 1 ? 'unplug' : 'wait-for-reboot',
-    });
-
-    // dispatch(lockUI(false));
+    dispatch(setStatus(model === 1 ? 'unplug' : 'wait-for-reboot'));
 };
-
-export const resetReducer = () => (dispatch: Dispatch) => {
-    dispatch({
-        type: FIRMWARE.RESET_REDUCER,
-    });
-};
-
-export const enableReducer = (payload: boolean): Action => ({
-    type: FIRMWARE.ENABLE_REDUCER,
-    payload,
-});
-
-export const setStatus = (payload: AnyStatus): Action => ({
-    type: FIRMWARE.SET_UPDATE_STATUS,
-    payload,
-});
-
-export const confirmSeed = (): Action => ({
-    type: FIRMWARE.CONFIRM_SEED,
-});
