@@ -69,7 +69,7 @@ export const goto = (
     console.log('unlocked', unlocked);
 
     if (!unlocked) return;
-    
+
     const url = getRoute(routeName, params);
 
     if (findRouteByName(routeName).isModal) {
