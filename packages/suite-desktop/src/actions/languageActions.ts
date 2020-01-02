@@ -1,9 +1,10 @@
 /* eslint-disable global-require */
 import { SUITE } from '@suite-actions/constants';
 import { Dispatch } from '@suite-types';
+import { LANGUAGES } from '@suite-config';
 
 // TODO: it is the same code as for native. Couldn't we just somehow import it from suite-native?
-export const fetchLocale = (locale: string) => (dispatch: Dispatch) => {
+export const fetchLocale = (locale: typeof LANGUAGES[number]['code']) => (dispatch: Dispatch) => {
     const messages: { [key: string]: any } = {
         en: require('@suite/locales/en'),
         bn: require('@suite/locales/bn'),

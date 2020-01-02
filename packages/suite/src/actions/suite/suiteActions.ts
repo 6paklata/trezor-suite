@@ -5,6 +5,7 @@ import { add as addNotification } from '@suite-actions/notificationActions';
 import * as routerActions from '@suite-actions/routerActions';
 import { Route } from '@suite-constants/routes';
 import { SUITE } from './constants';
+import { LANGUAGES } from '@suite-config';
 import { Action, Dispatch, GetState, TrezorDevice, AppState } from '@suite-types';
 
 export type SuiteActions =
@@ -26,7 +27,11 @@ export type SuiteActions =
     | { type: typeof SUITE.REQUEST_REMEMBER_DEVICE; payload: TrezorDevice }
     | { type: typeof SUITE.REMEMBER_DEVICE; payload: TrezorDevice }
     | { type: typeof SUITE.REQUEST_DISCONNECT_DEVICE; payload: TrezorDevice }
-    | { type: typeof SUITE.SET_LANGUAGE; locale: string; messages: { [key: string]: string } }
+    | {
+          type: typeof SUITE.SET_LANGUAGE;
+          locale: typeof LANGUAGES[number]['code'];
+          messages: { [key: string]: string };
+      }
     | { type: typeof SUITE.TOGGLE_DEVICE_MENU; payload: boolean }
     | { type: typeof SUITE.TOGGLE_SIDEBAR }
     | { type: typeof SUITE.ONLINE_STATUS; payload: boolean }
