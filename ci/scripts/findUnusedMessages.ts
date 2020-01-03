@@ -10,17 +10,16 @@ import messages from '../../packages/suite/src/support/messages';
 
 // read all paths we are interested in. filter out those we are not. 
 const paths = recursive('../../packages/suite/src').filter(path => {
-    // - we dont need file with defined messages
-    if (path.includes('messages.ts')) return false;
-    if (path.includes('.messages.ts')) return false;
-    if (path.includes('__test__')) return false;
-    if (path.includes('__tests__')) return false;
-    if (path.includes('.test.ts')) return false;
+    // - we dont need file with defined messages or tests
+    const excluded = ['messages.ts', '.messages.ts', '__test__', '__tests__', '.test.ts' ];
+    if (excluded.some(e => path.includes(e))) return false;
     // all other are ok.
     return true;
 });
 
-// just an object we are going to use to count occurrences of messages throughout the codebase
+console.log(`looking for messages in ${paths.length} paths`);
+
+// just a map we are going to use to count occurrences of messages throughout the codebase
 const tracker = {};
 
 paths.forEach(path => {
@@ -36,10 +35,8 @@ paths.forEach(path => {
     })
 });
 
-// lets check the results
-const unused = Object.entries(tracker).filter(t => {
-    return t[1] === 0;
-}).map(t => t[0]);
+// lets check the results, filter unused (zero occurences)
+const unused = Object.entries(tracker).filter(t => t[1] === 0)
 
 if (unused.length === 0) {
     console.log('Good job, no useless keys in messages');
