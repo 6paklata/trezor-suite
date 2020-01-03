@@ -8,7 +8,7 @@
         "lint:styles": "npx stylelint './src/**/*{.ts,.tsx}'",
         "translations:extract": "rimraf translations/extractedMessages && cross-env NODE_ENV=translations babel src/**/*.{tsx,ts} > /dev/null && node ../translations-manager/lib/cli.js merge-msgs && node ../translations-manager/lib/cli.js build-csv",
         "translations:download": "yarn ttm build-translations && sleep 1 && yarn ttm export-translations",
-        "translations:unused": "ts-node -T -O '{\"module\": \"commonjs\"}' ../../ci/scripts/findUnusedMessages.ts",
+        "translations:unused": "ts-node -T -O '{\"module\": \"commonjs\"}' ../../ci/scripts/find-unused-messages.ts",
         "type-check": "tsc --project tsconfig.json",
         "test": "run-s test:*",
         "test:unit": "jest",
